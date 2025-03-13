@@ -1,126 +1,206 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Kelola Kelompok</title>
+    <title>Manajemen Kelompok</title>
     <style>
-      /* Reset dasar */
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        font-family: Arial, sans-serif;
-      }
-
       body {
-        max-width: 1000px;
-        margin: auto;
-        padding: 20px;
+        font-family: Arial, sans-serif;
         display: flex;
-        justify-content: space-between;
       }
-
-      .content {
+      .container {
         flex-grow: 1;
+        padding: 20px;
       }
-
-      .member-list {
-        width: 250px;
-        border-left: 1px solid #ccc;
-        padding-left: 20px;
+      .daftar-nama {
+        width: 200px;
+        padding: 20px;
+        background: #f1f1f1;
       }
-
-      table,
-      th,
-      td {
-        border: 1px solid black;
-        border-collapse: collapse;
-        padding: 5px;
-        text-align: left;
-        width: 100%;
-      }
-
-      .group-table {
+      .kelompok-container {
         display: flex;
+        flex-wrap: wrap;
         gap: 10px;
-        overflow-x: auto;
+        margin-top: 20px;
       }
-
-      .group-card {
-        border: 1px solid #ccc;
+      .kelompok-card {
+        border: 1px solid black;
         padding: 10px;
         min-width: 200px;
+        background: #f9f9f9;
+        border-radius: 10px;
+        box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
       }
-
+      .kelompok-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-weight: bold;
+        margin-bottom: 10px;
+      }
+      .anggota-list {
+        padding: 5px;
+        background: #e6e6e6;
+        border-radius: 5px;
+        list-style-type: none;
+      }
       button {
-        margin-top: 10px;
+        margin: 5px;
         padding: 5px 10px;
         border: none;
         background: #007bff;
         color: white;
+        border-radius: 5px;
         cursor: pointer;
       }
-
-      button:disabled {
-        background: gray;
-        cursor: not-allowed;
+      button:hover {
+        background: #0056b3;
       }
     </style>
   </head>
   <body>
-    <div class="content">
-      <h1>Kelola Kelompok</h1>
-      <h2>Kelompok</h2>
-      <div class="group-table" id="groupContainer"></div>
+    <div class="container">
+      <input
+        type="text"
+        id="kelompok-input"
+        placeholder="Masukkan Nama Kelompok"
+      />
+      <button onclick="tambahKelompok()">Tambah Kelompok</button>
+      <div class="kelompok-container" id="kelompok-container"></div>
     </div>
-
-    <div class="member-list">
-      <h2>Daftar Nama</h2>
-      <table id="memberTable">
-        <tr>
-          <th>Nama</th>
-        </tr>
-      </table>
+    <div class="daftar-nama">
+      <h3>Daftar Nama</h3>
+      <input type="text" id="nama-input" placeholder="Masukkan Nama" />
+      <button onclick="tambahNama()">Tambah</button>
+      <ul id="nama-list"></ul>
     </div>
-
     <script>
-      // Daftar nama statis (tidak bisa ditambahkan di frontend)
-      const members = ["Ahmad", "Budi", "Citra", "Dewi", "Eka", "Fajar"];
+      let daftarNama = JSON.parse(localStorage.getItem("daftarNama")) || [];
+      let kelompok = JSON.parse(localStorage.getItem("kelompok")) || [];
 
-      // Kelompok awal (bisa diubah jika ingin kelompok berbeda)
-      const groups = [
-        { name: "Kelompok A", members: ["Ahmad", "Dewi"] },
-        { name: "Kelompok B", members: ["Budi", "Fajar"] },
-      ];
-
-      function renderMemberTable() {
-        let table = document.getElementById("memberTable");
-        table.innerHTML =
-          "<tr><th>Nama</th></tr>" +
-          members.map((m) => `<tr><td>${m}</td></tr>`).join("");
+      function simpanData() {
+        localStorage.setItem("daftarNama", JSON.stringify(daftarNama));
+        localStorage.setItem("kelompok", JSON.stringify(kelompok));
       }
 
-      function renderGroups() {
-        let container = document.getElementById("groupContainer");
-        container.innerHTML = groups
-          .map(
-            (group) => `
-                <div class="group-card">
-                    <h3>${group.name}</h3>
-                    <p>Anggota:</p>
-                    <ul>${group.members
-                      .map((m) => `<li>${m}</li>`)
-                      .join("")}</ul>
-                </div>
-            `
-          )
-          .join("");
+      function getNamaDigunakan() {
+        return kelompok.flatMap((k) => k.anggota);
       }
 
-      // Jalankan saat halaman dimuat
-      renderMemberTable();
-      renderGroups();
+      function renderNama() {
+        let namaList = document.getElementById("nama-list");
+        namaList.innerHTML = "";
+        daftarNama.forEach((nama, index) => {
+          let li = document.createElement("li");
+          li.textContent = nama;
+          let btnHapus = document.createElement("button");
+          btnHapus.textContent = "Hapus";
+          btnHapus.onclick = () => {
+            daftarNama.splice(index, 1);
+            simpanData();
+            renderNama();
+          };
+          li.appendChild(btnHapus);
+          namaList.appendChild(li);
+        });
+      }
+
+      function tambahNama() {
+        let nama = document.getElementById("nama-input").value.trim();
+        if (nama && !daftarNama.includes(nama)) {
+          daftarNama.push(nama);
+          daftarNama.sort();
+          simpanData();
+          renderNama();
+        }
+        document.getElementById("nama-input").value = "";
+      }
+
+      function tambahKelompok() {
+        let namaKelompok = document
+          .getElementById("kelompok-input")
+          .value.trim();
+        if (namaKelompok && !kelompok.some((k) => k.id === namaKelompok)) {
+          kelompok.push({ id: namaKelompok, anggota: [] });
+          simpanData();
+          renderKelompok();
+        }
+        document.getElementById("kelompok-input").value = "";
+      }
+
+      function hapusKelompok(namaKelompok) {
+        kelompok = kelompok.filter((k) => k.id !== namaKelompok);
+        simpanData();
+        renderKelompok();
+      }
+
+      function tambahAnggota(namaKelompok, selectElement) {
+        let namaTerpilih = selectElement.value;
+        if (namaTerpilih && !getNamaDigunakan().includes(namaTerpilih)) {
+          let group = kelompok.find((k) => k.id === namaKelompok);
+          group.anggota.push(namaTerpilih);
+          simpanData();
+          renderKelompok();
+        }
+      }
+
+      function hapusAnggota(namaKelompok, namaAnggota) {
+        let group = kelompok.find((k) => k.id === namaKelompok);
+        group.anggota = group.anggota.filter((n) => n !== namaAnggota);
+        simpanData();
+        renderKelompok();
+      }
+
+      function renderKelompok() {
+        let container = document.getElementById("kelompok-container");
+        container.innerHTML = "";
+        kelompok.forEach((k) => {
+          let div = document.createElement("div");
+          div.classList.add("kelompok-card");
+          let header = document.createElement("div");
+          header.classList.add("kelompok-header");
+          let title = document.createElement("h4");
+          title.textContent = k.id;
+          let btnHapusKelompok = document.createElement("button");
+          btnHapusKelompok.textContent = "Hapus";
+          btnHapusKelompok.onclick = () => hapusKelompok(k.id);
+          header.appendChild(title);
+          header.appendChild(btnHapusKelompok);
+          div.appendChild(header);
+          let select = document.createElement("select");
+          let namaDigunakan = getNamaDigunakan();
+          daftarNama.forEach((nama) => {
+            if (!namaDigunakan.includes(nama)) {
+              let option = document.createElement("option");
+              option.value = nama;
+              option.textContent = nama;
+              select.appendChild(option);
+            }
+          });
+          let btnTambahAnggota = document.createElement("button");
+          btnTambahAnggota.textContent = "Tambah Anggota";
+          btnTambahAnggota.onclick = () => tambahAnggota(k.id, select);
+          div.appendChild(select);
+          div.appendChild(btnTambahAnggota);
+          let anggotaList = document.createElement("ul");
+          anggotaList.classList.add("anggota-list");
+          k.anggota.forEach((nama) => {
+            let li = document.createElement("li");
+            li.textContent = nama;
+            let btnHapusAnggota = document.createElement("button");
+            btnHapusAnggota.textContent = "Hapus";
+            btnHapusAnggota.onclick = () => hapusAnggota(k.id, nama);
+            li.appendChild(btnHapusAnggota);
+            anggotaList.appendChild(li);
+          });
+          div.appendChild(anggotaList);
+          container.appendChild(div);
+        });
+      }
+
+      renderNama();
+      renderKelompok();
     </script>
   </body>
 </html>
