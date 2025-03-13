@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kelola Kelompok</title>
+    <style>
+      /* Reset dasar */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: Arial, sans-serif;
+      }
+
+      body {
+        max-width: 1000px;
+        margin: auto;
+        padding: 20px;
+        display: flex;
+        justify-content: space-between;
+      }
+
+      .content {
+        flex-grow: 1;
+      }
+
+      .member-list {
+        width: 250px;
+        border-left: 1px solid #ccc;
+        padding-left: 20px;
+      }
+
+      table,
+      th,
+      td {
+        border: 1px solid black;
+        border-collapse: collapse;
+        padding: 5px;
+        text-align: left;
+        width: 100%;
+      }
+
+      .group-table {
+        display: flex;
+        gap: 10px;
+        overflow-x: auto;
+      }
+
+      .group-card {
+        border: 1px solid #ccc;
+        padding: 10px;
+        min-width: 200px;
+      }
+
+      button {
+        margin-top: 10px;
+        padding: 5px 10px;
+        border: none;
+        background: #007bff;
+        color: white;
+        cursor: pointer;
+      }
+
+      button:disabled {
+        background: gray;
+        cursor: not-allowed;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="content">
+      <h1>Kelola Kelompok</h1>
+      <h2>Kelompok</h2>
+      <div class="group-table" id="groupContainer"></div>
+    </div>
+
+    <div class="member-list">
+      <h2>Daftar Nama</h2>
+      <table id="memberTable">
+        <tr>
+          <th>Nama</th>
+        </tr>
+      </table>
+    </div>
+
+    <script>
+      // Daftar nama statis (tidak bisa ditambahkan di frontend)
+      const members = ["Ahmad", "Budi", "Citra", "Dewi", "Eka", "Fajar"];
+
+      // Kelompok awal (bisa diubah jika ingin kelompok berbeda)
+      const groups = [
+        { name: "Kelompok A", members: ["Ahmad", "Dewi"] },
+        { name: "Kelompok B", members: ["Budi", "Fajar"] },
+      ];
+
+      function renderMemberTable() {
+        let table = document.getElementById("memberTable");
+        table.innerHTML =
+          "<tr><th>Nama</th></tr>" +
+          members.map((m) => `<tr><td>${m}</td></tr>`).join("");
+      }
+
+      function renderGroups() {
+        let container = document.getElementById("groupContainer");
+        container.innerHTML = groups
+          .map(
+            (group) => `
+                <div class="group-card">
+                    <h3>${group.name}</h3>
+                    <p>Anggota:</p>
+                    <ul>${group.members
+                      .map((m) => `<li>${m}</li>`)
+                      .join("")}</ul>
+                </div>
+            `
+          )
+          .join("");
+      }
+
+      // Jalankan saat halaman dimuat
+      renderMemberTable();
+      renderGroups();
+    </script>
+  </body>
+</html>
